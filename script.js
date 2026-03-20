@@ -1,4 +1,4 @@
-const API_URL = "YOUR_APPS_SCRIPT_URL_HERE";
+const API_URL = "https://script.google.com/macros/s/AKfycby1X8u3a62YpsoaED5_GZiGnE-sSxWCjfGL9yyCEQTTXRmgz1BQJsVfGvnVXCZY6nw/exec";
 
 const questionEl = document.getElementById("question");
 const answersEl = document.getElementById("answers");
