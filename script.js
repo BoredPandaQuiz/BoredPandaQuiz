@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwrsGq02Jw5Jr5wLurNZnMUu_l2L5--9SUuK5ZhH1llWvi50eCYHw1P7WwrGfAM9PM/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycby1X8u3a62YpsoaED5_GZiGnE-sSxWCjfGL9yyCEQTTXRmgz1BQJsVfGvnVXCZY6nw/exec";
 
 const questionEl = document.getElementById("question");
 const answersEl = document.getElementById("answers");
