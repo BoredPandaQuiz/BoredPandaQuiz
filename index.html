@@ -1,0 +1,199 @@
+function doGet(e) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const questionSheet = ss.getSheetByName("Sheet1");
+  const responseSheet = ss.getSheetByName("Responses");
+
+  const data = questionSheet.getDataRange().getValues();
+  const rows = data.slice(1).filter(row => row[0] && row[1]);
+
+  if (e.parameter.id && e.parameter.answer) {
+    const questionId = String(e.parameter.id);
+    const chosenAnswer = String(e.parameter.answer);
+
+    const matchedRow = rows.find(row => String(row[0]) === questionId);
+
+    if (!matchedRow) {
+      return HtmlService.createHtmlOutput(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <base target="_top">
+          <title>Question not found</title>
+        </head>
+        <body style="font-family:Arial,sans-serif;padding:30px;text-align:center;background:#f4f4f4;">
+          <div style="background:white;max-width:600px;margin:40px auto;padding:30px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+            <h2>Question not found</h2>
+          </div>
+        </body>
+        </html>
+      `);
+    }
+
+    const question = String(matchedRow[1]);
+    const correctAnswer = String(matchedRow[5]);
+    const isCorrect = chosenAnswer === correctAnswer;
+    const result = isCorrect ? "Correct" : "Wrong";
+    const baseUrl = ScriptApp.getService().getUrl();
+
+    responseSheet.appendRow([
+      new Date(),
+      questionId,
+      question,
+      chosenAnswer,
+      correctAnswer,
+      result
+    ]);
+
+    return HtmlService.createHtmlOutput(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base target="_top">
+        <title>Answer Result</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+          }
+          .box {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 700px;
+            width: 100%;
+          }
+          .message-correct {
+            color: green;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+          }
+          .message-wrong {
+            color: red;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+          }
+          .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: black;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 16px;
+          }
+          p {
+            line-height: 1.5;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="box">
+          ${
+            isCorrect
+              ? `<div class="message-correct">CORRECT</div>`
+              : `<div class="message-wrong">Sorry, you got the answer wrong</div>`
+          }
+          <p><strong>Question:</strong> ${escapeHtml(question)}</p>
+          <p><strong>Your answer:</strong> ${escapeHtml(chosenAnswer)}</p>
+          <a class="btn" target="_top" href="${baseUrl}">Next question</a>
+        </div>
+      </body>
+      </html>
+    `);
+  }
+
+  const randomRow = rows[Math.floor(Math.random() * rows.length)];
+
+  const id = String(randomRow[0]);
+  const question = String(randomRow[1]);
+  const answer1 = String(randomRow[2]);
+  const answer2 = String(randomRow[3]);
+  const answer3 = String(randomRow[4]);
+  const baseUrl = ScriptApp.getService().getUrl();
+
+  return HtmlService.createHtmlOutput(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <base target="_top">
+      <title>Random Question</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          margin: 0;
+          background: #f4f4f4;
+          text-align: center;
+          padding: 20px;
+          box-sizing: border-box;
+        }
+        .box {
+          background: white;
+          padding: 30px;
+          border-radius: 16px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+          max-width: 700px;
+          width: 100%;
+        }
+        h1 {
+          margin-bottom: 20px;
+        }
+        .question {
+          font-size: 24px;
+          line-height: 1.5;
+          margin-bottom: 25px;
+        }
+        .answer-btn {
+          display: block;
+          width: 100%;
+          box-sizing: border-box;
+          margin: 10px 0;
+          padding: 14px 18px;
+          background: black;
+          color: white;
+          text-decoration: none;
+          border-radius: 12px;
+          font-size: 16px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="box">
+        <h1>Question</h1>
+        <div class="question">${escapeHtml(question)}</div>
+        <a class="answer-btn" target="_top" href="${baseUrl}?id=${encodeURIComponent(id)}&answer=${encodeURIComponent(answer1)}">${escapeHtml(answer1)}</a>
+        <a class="answer-btn" target="_top" href="${baseUrl}?id=${encodeURIComponent(id)}&answer=${encodeURIComponent(answer2)}">${escapeHtml(answer2)}</a>
+        <a class="answer-btn" target="_top" href="${baseUrl}?id=${encodeURIComponent(id)}&answer=${encodeURIComponent(answer3)}">${escapeHtml(answer3)}</a>
+      </div>
+    </body>
+    </html>
+  `);
+}
+
+function escapeHtml(text) {
+  if (text === null || text === undefined) return "";
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
